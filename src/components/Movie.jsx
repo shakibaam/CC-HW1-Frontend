@@ -4,54 +4,51 @@ const Movie = ({ id, name, director, photoLink }) => {
   const [file, setFile] = useState();
   // const [language, setLanguage] = useState("en");
   const [seeComment, setSeeComment] = useState(false);
-  const [comments, setComments] = useState([
-    { CommentText: "Das war unangenehm.", MovieID: 1, UserName: "shakiba" },
-  ]);
+  const [comments, setComments] = useState([]);
   const [postResponse, setPostResponse] = useState("");
   const axios = require("axios");
-
-  //   useEffect(() => {
-  //   async function getMovies() {
-  //     if (setComments === true) {
-  //       let response = await axios.get("https://shakibaam.pythonanywhere.com");
-  //       let movies = response.data;
-  //       setMovies(movies);
-  //       setIsLoading(false);
-  //       console.log(movies);
-  //     }
-  //   }
-
-  //   getMovies();
-  // });
 
   function handleChange(event) {
     setFile(event.target.files[0]);
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    const url = `https://shakibaam.pythonanywhere.com/${id}`;
+    const url = ` https://shakibaam.pythonanywhere.com/${id}`;
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("fileName", file.name);
+
     console.log(file.name);
-    // const config = {
-    //   headers: {
-    //     'content-type': 'multipart/form-data',
-    //   },
-    // };
-    // axios.post(url, formData, config).then((response) => {
-    //   console.log(response.data);
-    //   setPostResponse(response.data)
-    // });
-    // alert(postResponse);
+    axios
+      .post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(function (response) {
+        //handle success
+        console.log(response);
+        let result = response.data;
+        alert(result);
+      })
+      .catch(function (response) {
+        //handle error
+        console.log(response);
+      });
   }
+
+  //   axios.post(url, formData).then((response) => {
+  //     console.log(response.data);
+  //     // setPostResponse(response.data);
+  //     // console.log(postResponse);
+  //   });
+  //   // alert(postResponse);
+  // }
 
   async function handleChangeLanguage(event) {
     console.log(event.target.value);
-    // setSeeComment(true);
-    const url = `https://shakibaam.pythonanywhere.com/${id}/?lang=${event.target.value}`;
-    let response = await axios.get("https://shakibaam.pythonanywhere.com");
+    const url = `https://shakibaam.pythonanywhere.com/${id}?lang=${event.target.value}`;
+    let response = await axios.get(url);
     let comments = response.data["translated_comments"];
     setComments(comments);
   }
@@ -65,26 +62,26 @@ const Movie = ({ id, name, director, photoLink }) => {
         <input type="file" onChange={handleChange} />
         <button type="submit">Upload Comment</button>
       </form>
-      <label for="langs">Show comment in :</label>
+      <label htmlFor="langs">Show comment in :</label>
       <select name="langs" id="langs" onChange={handleChangeLanguage}>
+        <option>Languages</option>
         <option value="en">English</option>
         <option value="de">German</option>
         <option value="es">Espanish</option>
         <option value="it">italian</option>
       </select>
       <br />
-      {/* <input type="submit" value="Submit"></input> */}
 
-      {/* <button onClick={test}>Show Comments</button> */}
       {comments.length !== 0 &&
         comments.map((comment) => (
-          <div>
+          <div key={comment["CommentID"]}>
             <p>
               {" "}
               {comment["UserName"]} : {comment["CommentText"]}
             </p>
           </div>
         ))}
+
       <hr />
     </div>
   );
